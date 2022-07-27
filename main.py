@@ -1,4 +1,4 @@
-from test import CampoMinado
+from classes import CampoMinado
 
 campo = CampoMinado(10, 10, 0.1)
 campo.mostra_campo()
