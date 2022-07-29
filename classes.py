@@ -141,33 +141,4 @@ class CampoMinado(Campo):
                     self.campo[i, j] = self.bomba
 
     def sem_bomba(self, linha, coluna):
-        ja_usados = np.array([], dtype=int)
-        zeros = np.array([linha, coluna])
-        elementos_visiveis = self.redondezas(linha, coluna)
-
-        while zeros.any():
-            for i in range(len(elementos_visiveis)):
-                zeros = zeros.reshape((-1, 2))
-                elemento = elementos_visiveis[i]
-
-                contido_ja_usado = False
-                for n in range(len(ja_usados)):
-                    if np.isin(elemento, ja_usados[n]).all():
-                        contido_ja_usado = True
-
-                contido_zeros = False
-                for n in range(len(zeros)):
-                    if np.isin(elemento, zeros[n]).all():
-                        contido_zeros = True
-
-                item = int(self.campo_minado[elemento[0], elemento[1]])
-                if item == 0 and not contido_zeros and not contido_ja_usado:
-                    zeros = np.append(zeros, elemento).astype(int)
-
-            zeros = zeros.reshape((-1, 2))
-            zeros = np.delete(zeros, [0, 1])
-            ja_usados = np.append(ja_usados, elementos_visiveis).reshape((-1, 2))
-            if zeros.any():
-                elementos_visiveis = self.redondezas(zeros[0], zeros[1])
-        ja_usados = np.unique(ja_usados, axis=0)
-        return ja_usados
+        pass
