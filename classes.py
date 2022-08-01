@@ -141,4 +141,48 @@ class CampoMinado(Campo):
                     self.campo[i, j] = self.bomba
 
     def sem_bomba(self, linha, coluna):
-        pass
+        ja_vistos = np.array([], dtype=int)
+        nao_vistos = self.redondezas(linha, coluna)
+        nao_vistos = nao_vistos.reshape((-1, 2))
+        # print(nao_vistos)
+        # print('-')
+
+        while nao_vistos.any():
+            for posicao in nao_vistos:
+                incluido_ja_vistos = self.contido(posicao, ja_vistos)
+
+                elemento = self.campo_minado[posicao[0], posicao[1]]
+                if int(elemento) == 0 and not incluido_ja_vistos:
+                    provisorio = self.redondezas(posicao[0], posicao[1]).reshape((-1, 2))
+                    incluido_provisorio = self.interseccao(provisorio, nao_vistos, interseccao=False)
+
+                    if incluido_provisorio.any():
+                        nao_vistos = np.append(nao_vistos, incluido_provisorio)
+                        nao_vistos = nao_vistos.reshape((-1, 2))
+
+                ja_vistos = np.append(ja_vistos, posicao)
+                ja_vistos = ja_vistos.reshape((-1, 2))
+
+            ja_vistos = ja_vistos.reshape((-1, 2))
+            nao_vistos = np.delete(nao_vistos, 0, axis=0)
+
+        return ja_vistos
+
+    @staticmethod
+    def contido(elemento, array):
+        for item in array:
+            if (elemento == item).all():
+                return True
+        return False
+
+    @classmethod
+    def interseccao(cls, array1, array2, interseccao=True):
+        intersec = list(filter(lambda x: x in array1.tolist(), array2.tolist()))
+        if interseccao:
+            return np.array(intersec).reshape((-1, 2)).astype(int)
+
+        else:
+            not_intersec = array1.tolist()
+            for i in range(len(intersec)):
+                del not_intersec[not_intersec.index(intersec[i])]
+            return np.array(not_intersec).reshape((-1, 2)).astype(int)
