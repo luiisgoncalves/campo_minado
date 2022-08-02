@@ -36,16 +36,16 @@ class CampoMinado(Campo):
         self.dificuldade = dificulade
         self.bomba = bomba
         self.campo_minado = np.copy(self.campo)
+        self.posicoes = self.linhas * self.colunas
+        self.quantidade_bombas = int(self.posicoes * self.dificuldade)
+        self.bombas = []
 
     def cria_bombas(self):
-        maximo = self.linhas * self.colunas
-        bombas = []
-        quantidade_bombas = int(self.dificuldade * maximo)
         i = 0
-        while i < quantidade_bombas:
-            posicao_bomba = randint(0, maximo - 1)
-            if posicao_bomba not in bombas:
-                bombas.append(posicao_bomba)
+        while i < self.quantidade_bombas:
+            posicao_bomba = randint(0, self.posicoes - 1)
+            if posicao_bomba not in self.bombas:
+                self.bombas.append(posicao_bomba)
                 i += 1
 
         ######################
@@ -54,7 +54,7 @@ class CampoMinado(Campo):
         # print(bombas)
         ######################
 
-        self.adiciona_bombas(bombas)
+        self.adiciona_bombas(self.bombas)
 
     def adiciona_bombas(self, bombas):
         for bomba in bombas:
@@ -96,7 +96,6 @@ class CampoMinado(Campo):
             case 9:
                 sub_matriz = sub_matriz.reshape((3, 3))
 
-        # print(sub_matriz)
         return sub_matriz
 
     def redondezas(self, linha, coluna):
@@ -119,8 +118,6 @@ class CampoMinado(Campo):
 
                 if 0 <= line < self.linhas and 0 <= column < self.colunas:
                     matriz_index = np.append(matriz_index, [line, column])
-        # print(matriz_index.reshape((9, 2)))
-        # print('\n')
         return matriz_index.reshape((-1, 2))
 
     def escolha(self, linha, coluna):
@@ -147,8 +144,6 @@ class CampoMinado(Campo):
         ja_vistos = np.array([], dtype=int)
         nao_vistos = self.redondezas(linha, coluna)
         nao_vistos = nao_vistos.reshape((-1, 2))
-        # print(nao_vistos)
-        # print('-')
 
         while nao_vistos.any():
             for posicao in nao_vistos:

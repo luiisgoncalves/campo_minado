@@ -31,7 +31,7 @@ def trata_escolha(mensagem, maximo=None, _int=True):
                 erros(3)
 
 
-def erros(erro, maximo=None):
+def erros(erro, maximo=None, posicao=None):
     match erro:
         case 1:
             print(f'Fora do Range! Escolha um número entre 0 e {maximo - 1}')
@@ -41,3 +41,7 @@ def erros(erro, maximo=None):
             print('Entrada Inválida!\nEntre apenas com um número do tipo float')
         case 4:
             print('Fora do Range! Escolha um número entre 0.1 e 0.9')
+        case 5:
+            print(f'A posição {posicao} já está ocupada, escolha outra')
+        case 6:
+            print(f'A posição {posicao} está com um aviso, deseja seleciona-la?')
