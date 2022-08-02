@@ -14,7 +14,7 @@ class Campo:
     def mostra_campo(self, campo_minado=None, espacamento='   '):
         # print da numeracao das colunas
         for i in range(self.colunas):
-            print(i, end=espacamento)
+            print(str(i).ljust(len(espacamento) + 1), end='')
 
         print('\n' + '-- ' * (((self.colunas + self.colunas * len(espacamento)) // 3) + 1))
 
@@ -105,10 +105,10 @@ class CampoMinado(Campo):
 
         ###########################################################################################################
         # line_inf = linha - 1 if linha - 1 >= 0 else 0
-        # line_sup = linha + 1
+        # line_sup = linha + 2
         # column_inf = coluna - 1 if coluna - 1 >= 0 else 0
-        # column_sup = coluna + 1
-        # matriz_index = np.append(matriz_index, self.campo_minado[line_inf:column_inf, line_sup:column_sup])
+        # column_sup = coluna + 2
+        # matriz_index = np.append(matriz_index, self.campo_minado[line_inf:line_sup, column_inf:column_sup])
         # print(matriz_index)
         ###########################################################################################################
 
@@ -126,13 +126,16 @@ class CampoMinado(Campo):
     def escolha(self, linha, coluna):
         if self.campo_minado[linha, coluna] == self.bomba:
             self.explosao()
+            return True
         elif int(self.campo_minado[linha, coluna]) == 0:
             livres = self.sem_bomba(linha, coluna)
             for livre in livres:
                 line, column = livre
                 self.campo[line, column] = self.campo_minado[line, column]
+            return False
         else:
             self.campo[linha, coluna] = self.campo_minado[linha, coluna]
+            return False
 
     def explosao(self):
         for i in range(self.linhas):
