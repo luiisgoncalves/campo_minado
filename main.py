@@ -1,4 +1,5 @@
-from classes import CampoMinado
+from classes import CampoMinado, Cenario
+import pygame
 from functions import *
 
 
@@ -8,8 +9,6 @@ def main():
     while jogo:
         lines, columns, difficulty = escolha_config()
         campo = CampoMinado(lines, columns, difficulty)
-        campo.cria_bombas()
-        campo.conta_bombas()
         campo.mostra_campo()
 
         partida = True
@@ -27,5 +26,27 @@ def main():
                 jogo = reinicio('ganhou!!!')
 
 
+def teste():
+
+    cenario = Cenario(15, 15, 0.1)
+    jogo = True
+    while jogo:
+        partida = True
+
+        while partida:
+            cenario.processar_eventos(pygame.event.get())
+            pygame.display.update()
+
+            # if explosao:
+            #     partida = False
+            #     jogo = reinicio('perdeu! :(')
+
+            if cenario.campo_minado_.qntd_posicoes_disponiveis() == cenario.campo_minado_.quantidade_bombas:
+                partida = False
+                # print('venceu')
+                # jogo = reinicio('ganhou!!!')
+
+
 if __name__ == '__main__':
-    main()
+    # main()
+    teste()

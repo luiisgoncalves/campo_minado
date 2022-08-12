@@ -1,4 +1,4 @@
-import classes  # importada apenas para definir o tipo de dado esperado pela funcao: escolha_posicao
+import classes  # importada apenas para definir o tipo de dado esperado pelas funcoes: escolha_posicao e posicao_livre
 
 
 def escolha_config():
