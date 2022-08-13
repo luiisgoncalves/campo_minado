@@ -27,7 +27,8 @@ def jogo_no_terminal():
 
 
 def main():
-    cenario = Cenario(10, 10, 0.03)
+    # enquanto nao crio um menu, unico modo de alterar as configuracoes eh diretamente pela linha de codigo abaixo
+    cenario = Cenario(20, 20, 0.1)
 
     while True:
         cenario.processar_eventos(pygame.event.get())

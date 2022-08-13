@@ -299,7 +299,7 @@ class CampoMinado(Campo):
         return self._qntd_marcacoes
 
 
-class Cenario:  # classe responsavel pela criacao do cenario do hoje e das interacoes com o jogador
+class Cenario:  # classe responsavel pela criacao do cenario do jogo e das interacoes com o jogador
     def __init__(self, linhas, colunas, dificuldade):
         self.linhas = linhas                                            # quantidade de linhas do campo minado
         self.colunas = colunas                                          # quantidade de colunas do campo minado
@@ -311,7 +311,7 @@ class Cenario:  # classe responsavel pela criacao do cenario do hoje e das inter
         self.y_pos_qntd_bomba = 0  # posicao vertical inicial onde será pintada na tela as imagens do digitos referentes à quantidade de bombas restantes para o jogador descobrir
         self.x_pos_tempo = self.screen.get_width() - (ESCALA_MEDIA[0] * 3)  # posicao horizontal inicial onde será pintada na tela as imagens do digitos referentes ao tempo de jogo
         self.y_pos_tempo = 0       # posicao vertical inicial onde será pintada na tela as imagens do digitos referentes ao tempo de jogo
-        self.pinta_tela()          # chama o metodo que defato pintara a tela do jogo
+        self.pinta_tela()          # chama o metodo que, de fato pintara, a tela do jogo
         self.pinta_botao()         # chama o metodo que pintara o botao de reinicio do jogo
         self.pinta_qntd_bomba()    # chama o metodo que pintara os digitos (canto superior esquerdo) que indicam a quantidade de bombas ja marcadas
         self.inicio = 0            # atributo que armazera o horario que o jogador iniciou a partida

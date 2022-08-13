@@ -1,7 +1,7 @@
 import classes  # importada apenas para definir o tipo de dado esperado pelas funcoes: escolha_posicao e posicao_livre
 
 
-def escolha_config():
+def escolha_config() -> tuple[int, int, float]:
     """responsavel por retornar as configuracoes (quantidade de linhas e colunas e dificulade) do novo jogo do usuario"""
     lines = trata_escolha('quantidade de linhas')
     columns = trata_escolha('quantidade de colunas')
@@ -9,7 +9,7 @@ def escolha_config():
     return lines, columns, difficulty
 
 
-def trata_escolha(mensagem: str, maximo: int | None = None, _int: bool = True):
+def trata_escolha(mensagem: str, maximo: int | None = None, _int: bool = True) -> int | float:
     """responsavel pelo tratamento das entradas de dados do usuario antes, durante e apos a partida"""
     while True:
         choice = input(f'Escolha a {mensagem}: ')
@@ -36,7 +36,7 @@ def trata_escolha(mensagem: str, maximo: int | None = None, _int: bool = True):
                 erros(3)
 
 
-def reinicio(mensagem: str):
+def reinicio(mensagem: str) -> bool | None:
     """chamada ao final de cada partida para perguntar se o jogador que iniciar um novo jogo ou sair do programa"""
     print(f'\nVocê {mensagem}')
 
@@ -53,7 +53,7 @@ def reinicio(mensagem: str):
             print('\nComando Inválido!\nDigite apenas "s" para Sim ou "n" para Não')
 
 
-def escolha_posicao(lines: int, columns: int, campo: classes.CampoMinado):
+def escolha_posicao(lines: int, columns: int, campo: classes.CampoMinado) -> tuple[int, int]:
     """funcao responsavel por retorna linha e coluna escolhida pelo usuario"""
     while True:
         line = trata_escolha('linha', maximo=lines)
@@ -62,7 +62,7 @@ def escolha_posicao(lines: int, columns: int, campo: classes.CampoMinado):
             return line, column
 
 
-def posicao_livre(line: int, column: int, campo: classes.CampoMinado):
+def posicao_livre(line: int, column: int, campo: classes.CampoMinado) -> bool | None:
     """verifica se a posicao desejada do jogador esta livre para ser escolhida"""
     if campo.campo[line, column] == campo.elemento:
         return True
@@ -70,7 +70,7 @@ def posicao_livre(line: int, column: int, campo: classes.CampoMinado):
         erros(5, posicao=[line, column])
 
 
-def erros(erro: int, maximo: int | None = None, posicao: list | None = None):
+def erros(erro: int, maximo: int | None = None, posicao: list | None = None) -> None:
     """funcao responsavel por mostrar mensagens de erro ao jogador"""
     match erro:
         case 1:
