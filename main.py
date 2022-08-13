@@ -3,7 +3,7 @@ import pygame
 from functions import *
 
 
-def main():
+def jogo_no_terminal():
     jogo = True
 
     while jogo:
@@ -26,25 +26,15 @@ def main():
                 jogo = reinicio('ganhou!!!')
 
 
-def teste():
+def main():
+    cenario = Cenario(10, 10, 0.03)
 
-    cenario = Cenario(15, 15, 0.05)
-    jogo = True
-    while jogo:
-        partida = True
-
-        while partida:
-            cenario.processar_eventos(pygame.event.get())
-            pygame.display.update()
-            cenario.pinta_qntd_bomba()
-            cenario.contagem_tempo()
-            perdeu = cenario.perdeu()
-            venceu = cenario.venceu()
-
-            if venceu or perdeu:
-                partida = False
+    while True:
+        cenario.processar_eventos(pygame.event.get())
+        cenario.contagem_tempo()
+        pygame.display.update()
 
 
 if __name__ == '__main__':
-    # main()
-    teste()
+    main()
+    # jogo_no_terminal()
