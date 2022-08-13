@@ -3,11 +3,13 @@ import os
 
 # IMAGENS
 ESCALA_MENOR = (24, 24)
+ESCALA_MEDIA = (24, 48)
 ESCALA_MAIOR = (48, 48)
 
 DIGITOS = []
 for t in range(10):
-    DIGITOS.append(pygame.transform.scale(pygame.image.load(os.path.join('imgs', f'dig_0{t}.PNG')), ESCALA_MENOR))
+    DIGITOS.append(pygame.transform.scale(pygame.image.load(os.path.join('imgs', f'dig_0{t}.PNG')), ESCALA_MEDIA))
+DIGITOS.append(pygame.transform.scale(pygame.image.load(os.path.join('imgs', 'dig_neg.PNG')), ESCALA_MEDIA))
 
 NUMEROS = [0]
 for t in range(1, 9):
@@ -35,3 +37,4 @@ MARGEM_SUPERIOR = 50
 
 # CORES
 GREY = (192, 192, 192)
+YELLOW = (255, 255, 0)

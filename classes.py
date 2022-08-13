@@ -1,24 +1,28 @@
+from pygame_menu.examples import create_example_window
 from random import randint
 from constantes import *
 import numpy as np
+import pygame_menu
 import pygame
+import time
 
 pygame.init()
+fonte = pygame.font.SysFont('arial', 32, True, False)
+pygame.display.set_icon(BOMBA)
+pygame.display.set_caption('Minesweeper')
 
 
 class Campo:
     def __init__(self, linhas: int, colunas: int, elemento: str = '·'):
         """funcao de inicializacao da classe Campo.
-        cria a quantidade de linhas, colunas os elementos neutros (ja com valor default) e o ndarray que representa a matriz do campo vazio
-        int, int, str -> None"""
+        cria a quantidade de linhas, colunas os elementos neutros (ja com valor default) e o ndarray que representa a matriz do campo vazio"""
         self.linhas = linhas
         self.colunas = colunas
         self._elemento = elemento
         self.campo = np.full((self.linhas, self.colunas), self._elemento)
 
     def mostra_campo(self, campo_minado: list | np.ndarray | None = None, espacamento: str = '   '):
-        """funcao responsavel por mostrar o campo no estado atual
-        list, str -> None"""
+        """funcao responsavel por mostrar o campo no estado atual"""
         # print da numeracao das colunas
         for i in range(self.colunas):
             print(str(i).ljust(len(espacamento) + 1), end='')
@@ -42,14 +46,25 @@ class Campo:
 
 
 class CampoMinado(Campo):
-    def __init__(self, linhas: int, colunas: int, dificulade: float, elemento: str = '·', bomba: str = 'X', marcacao: str = 'ß', duvida: str = '?'):
-        """funcao de inicializacao da classe Campo Minado sendo herdada da classe Campo.
-        int, int, float, str, str, str, str -> None"""
+    def __init__(self,
+                 linhas: int,
+                 colunas: int,
+                 dificulade: float,
+                 elemento: str = '·',
+                 bomba: str = 'X',
+                 marcacao: str = 'ß',
+                 duvida: str = '?',
+                 marcacao_errada: str = 'E',
+                 bomba_explosao: str = 'Q'):
+        """funcao de inicializacao da classe Campo Minado sendo herdada da classe Campo"""
         super().__init__(linhas, colunas, elemento)  # chama o inicializador da superclasse Campo
         self._dificuldade = dificulade
         self._bomba = bomba
         self._marcacao = marcacao
+        self._qntd_marcacoes = 0
         self._duvida = duvida
+        self._marcacao_errada = marcacao_errada
+        self._bomba_explosao = bomba_explosao
         self.campo_minado = np.copy(self.campo)
         self.posicoes = self.linhas * self.colunas
         self._quantidade_bombas = int(self.posicoes * self._dificuldade)
@@ -58,8 +73,7 @@ class CampoMinado(Campo):
         self.conta_bombas()
 
     def cria_bombas(self):
-        """funcao responsavel pela criacao das bombas de forma aleatoria
-        None -> None"""
+        """funcao responsavel pela criacao das bombas de forma aleatoria"""
         i = 0
         while i < self._quantidade_bombas:
             posicao_bomba = randint(0, self.posicoes - 1)
@@ -77,16 +91,14 @@ class CampoMinado(Campo):
         self.adiciona_bombas()
 
     def adiciona_bombas(self):
-        """funcao responsavel por adicionar todas as bombas no campo minado
-        None -> None"""
+        """funcao responsavel por adicionar todas as bombas no campo minado"""
         for bomba in self.bombas:
             linha = bomba // self.colunas
             coluna = bomba % self.colunas
             self.campo_minado[linha][coluna] = self._bomba
 
     def conta_bombas(self):
-        """funcao responsavel por verificar quantas bombas estao ao redor de cada elemento do campo minado
-        None -> None"""
+        """funcao responsavel por verificar quantas bombas estao ao redor de cada elemento do campo minado"""
         for linha in range(self.linhas):
             for coluna in range(self.colunas):
 
@@ -101,8 +113,7 @@ class CampoMinado(Campo):
                     self.campo_minado[linha][coluna] = qntd_bomba
 
     def ver_elementos(self, linha: int, coluna: int):
-        """recebe a linha e posicao de um elemento do campo minado e retorna uma submatriz 3x3 contendo todos os elementos que estao nas redondezas do elemento passado
-        int, int -> numpy.ndarray"""
+        """recebe a linha e posicao de um elemento do campo minado e retorna uma submatriz 3x3 contendo todos os elementos que estao nas redondezas do elemento passado"""
 
         # nao estou usando esta funcao em nenhuma parte do meu programa!!!
         # provavelmente criei no inicio e mais tarde vi que nao tinha mais necesseidade de usa-la, mas nao quis excluir
@@ -130,8 +141,7 @@ class CampoMinado(Campo):
         return sub_matriz
 
     def redondezas(self, linha: int, coluna: int):
-        """responsavel por verificar todos os indices dos elementos que estao nas redondezas do elemento com linha e coluna passados como entrada
-        int, int -> numpy.ndarray"""
+        """responsavel por verificar todos os indices dos elementos que estao nas redondezas do elemento com linha e coluna passados como entrada"""
         dimensao = (-1, 0, 1)
         matriz_index = np.array([], dtype=int)
 
@@ -155,18 +165,17 @@ class CampoMinado(Campo):
         return matriz_index.reshape((-1, 2))
 
     def escolha(self, linha: int, coluna: int):
-        """recebe uma linha e uma coluna e verifica se esta posicao contem ou nao uma bomba no campo minado
-        int, int -> bool"""
+        """recebe uma linha e uma coluna e verifica se esta posicao contem ou nao uma bomba no campo minado"""
         if self.campo_minado[linha, coluna] == self._bomba and self.campo[linha, coluna] != self._marcacao:
             self.explosao()
+            self.campo[linha, coluna] = self._bomba_explosao
             return True
         else:
             self.verifica_local_livre(linha, coluna)
             return False
 
     def verifica_local_livre(self, linha: int, coluna: int):
-        """verifica se a posicao passada eh uma posicao livre ou se existe bomba nas rendondezas
-        int, int -> None"""
+        """verifica se a posicao passada eh uma posicao livre ou se existe bomba nas rendondezas"""
         if self.campo[linha, coluna] == self.marcacao:
             pass
 
@@ -174,6 +183,8 @@ class CampoMinado(Campo):
             livres = self.sem_bomba(linha, coluna)        # chama a funcao sem_bomba que retorna numpy.ndarray com todos os elementos que serão revelados ao jogador
             for livre in livres:
                 line, column = livre
+                if self.campo[line, column] == str(self._marcacao):
+                    continue
                 self.campo[line, column] = int(self.campo_minado[line, column])
 
         else:  # caso contrário, significa que existe uma bomba nas redondezas e apenas este elemento será revelado
@@ -181,16 +192,16 @@ class CampoMinado(Campo):
 
     def explosao(self):
         """responsavel por mostrar todas as bombas contidas no campo minado ao usuario.
-        chamada nas vezes em que o jogador selecionou um local que contem uma bomba
-        None -> None"""
+        chamada nas vezes em que o jogador selecionou um local que contem uma bomba"""
         for i in range(self.linhas):
             for j in range(self.colunas):
-                if self.campo_minado[i, j] == self._bomba:
+                if self.campo_minado[i, j] == self._bomba and self.campo[i, j] != self.marcacao:
                     self.campo[i, j] = self._bomba
+                elif self.campo[i, j] == self.marcacao and self.campo_minado[i, j] != self._bomba:
+                    self.campo[i, j] = self._marcacao_errada
 
     def sem_bomba(self, linha: int, coluna: int):
-        """recebe a linha e coluna correspondentes de um elemento do campo minado e retorna uma lista com todos os elementos das redondezas que nao contem bombas
-        int, int -> numpy.ndarray"""
+        """recebe a linha e coluna correspondentes de um elemento do campo minado e retorna uma lista com todos os elementos das redondezas que nao contem bombas"""
         ja_vistos = np.array([], dtype=int)                               # array que conterah todos os elementos ja vistos
         nao_vistos = self.redondezas(linha, coluna)                       # array contendo todos os elementos ainda nao vistos
 
@@ -208,12 +219,10 @@ class CampoMinado(Campo):
                         nao_vistos = np.append(nao_vistos, incluido_provisorio).reshape((-1, 2))  # todos os novos elementos novos que ainda nao foram vistos sao armazenados na variavel nao_vistos
                 ja_vistos = np.append(ja_vistos, posicao).reshape((-1, 2))                        # elemento que acabou de ser tratado eh armazenado na variavel ja_vistos, para nao ser consultado novamente
                 nao_vistos = np.delete(nao_vistos, 0, axis=0)                                     # o mesmo elemento tambem eh excluido da lista de elementos que ainda nao foram vistos
-
         return ja_vistos  # retorna todos os elementos que serão revelados no campo
 
     def qntd_posicoes_disponiveis(self):
-        """retorna a quantidade de posições que o jogador ainda pode selecionar
-        None -> int"""
+        """retorna a quantidade de posições que o jogador ainda pode selecionar"""
         elementos = [self._elemento, self._marcacao, self._duvida]
         qntd_posicoes = 0
 
@@ -226,15 +235,16 @@ class CampoMinado(Campo):
     def sinalizacao(self, linha, coluna):
         if self.campo[linha, coluna] == self.elemento:
             self.campo[linha, coluna] = self._marcacao
+            self._qntd_marcacoes += 1
         elif self.campo[linha, coluna] == self._marcacao:
             self.campo[linha, coluna] = self._duvida
+            self._qntd_marcacoes -= 1
         elif self.campo[linha, coluna] == self._duvida:
             self.campo[linha, coluna] = self.elemento
 
     @staticmethod
     def contido(elemento: np.ndarray, array: np.ndarray):
-        """verifica se um certo elemento esta contido no array passado
-        numpy.ndarray, numpy.ndarray -> numpy.ndarray"""
+        """verifica se um certo elemento esta contido no array passado"""
         for item in array:
             if (elemento == item).all():
                 return True
@@ -273,6 +283,22 @@ class CampoMinado(Campo):
     def quantidade_bombas(self):
         return self._quantidade_bombas
 
+    @property
+    def dificuldade(self):
+        return self._dificuldade
+
+    @property
+    def marcacao_errada(self):
+        return self._marcacao_errada
+
+    @property
+    def bomba_explosao(self):
+        return self._bomba_explosao
+
+    @property
+    def qntd_marcacoes(self):
+        return self._qntd_marcacoes
+
 
 class Cenario:
     def __init__(self, linhas, colunas, dificuldade):
@@ -280,21 +306,78 @@ class Cenario:
         self.colunas = colunas
         self.largura_tela = self.colunas * ESCALA_MENOR[0]
         self.altura_tela = self.linhas * ESCALA_MENOR[1]
-        self.screen = self.cria_tela()
-        self.pinta_campo_coberto()
-        self.pinta_botao()
         self.campo_minado_ = CampoMinado(linhas, colunas, dificuldade)
+        # self.screen_menu = pygame.display.set_mode((200, 200))
+        self.screen = self.cria_tela()
+        self.x_pos_qntd_bomba = 0
+        self.y_pos_qntd_bomba = 0
+        self.x_pos_tempo = self.screen.get_width() - (ESCALA_MEDIA[0] * 3)
+        self.y_pos_tempo = 0
+        self.inicio = 0
+        self.start = False
+        self.posicao_tempo = None
+        self.pinta_tela()
+        self.pinta_botao()
+        self.pinta_qntd_bomba()
         self.soltou = False
+        self.explosao = False
 
     def cria_tela(self):
         screen = pygame.display.set_mode((self.largura_tela, MARGEM_SUPERIOR + self.altura_tela))
         return screen
 
-    def pinta_campo_coberto(self):
+    def pinta_tela(self):
         self.screen.fill(GREY)
+        self.screen.blit(DIGITOS[0], (self.x_pos_tempo, self.y_pos_tempo))
+        self.screen.blit(DIGITOS[0], (self.x_pos_tempo + ESCALA_MEDIA[0], self.y_pos_tempo))
+        self.screen.blit(DIGITOS[0], (self.x_pos_tempo + ESCALA_MEDIA[0] * 2, self.y_pos_tempo))
         for i in range(self.colunas):
             for j in range(self.linhas):
                 self.screen.blit(CAMPO_OCULTO, (i * ESCALA_MENOR[0], MARGEM_SUPERIOR + j * ESCALA_MENOR[1]))
+
+    def contagem_tempo(self):
+        if (not self.explosao or not self.venceu()) and self.start:
+            self.pinta_tempo()
+
+    def pinta_qntd_bomba(self):
+        qntd = self.campo_minado_.quantidade_bombas - self.campo_minado_.qntd_marcacoes
+        self.pinta_digitos(qntd, (self.x_pos_qntd_bomba, self.y_pos_qntd_bomba))
+
+    def pinta_tempo(self):
+        tempo = int(time.time() - self.inicio)
+        self.pinta_digitos(tempo, (self.x_pos_tempo, self.y_pos_tempo))
+
+    def inicia_tempo(self):
+        if not self.start:
+            self.start = True
+            self.inicio = time.time()
+
+    def pinta_digitos(self, num, posicao: tuple):
+        if num >= 0:
+            unidade = num % 10
+            dezena = (num % 100) // 10
+            centena = (num % 1000) // 100
+            self.screen.blit(DIGITOS[centena], posicao)
+            self.screen.blit(DIGITOS[dezena], (posicao[0] + ESCALA_MEDIA[0], posicao[1]))
+            self.screen.blit(DIGITOS[unidade], (posicao[0] + ESCALA_MEDIA[0] * 2, posicao[1]))
+
+        elif -99 <= num < 0:
+            num *= -1
+            unidade = num % 10
+            self.screen.blit(DIGITOS[unidade], (posicao[0] + ESCALA_MEDIA[0] * 2, posicao[1]))
+
+            if num < 10:
+                self.screen.blit(DIGITOS[0], posicao)
+                self.screen.blit(DIGITOS[-1], (posicao[0] + ESCALA_MEDIA[0], posicao[1]))
+            else:
+                dezena = (num % 100) // 10
+                self.screen.blit(DIGITOS[-1], posicao)
+                self.screen.blit(DIGITOS[dezena], (posicao[0] + ESCALA_MEDIA[0], posicao[1]))
+
+        elif num < -99:
+            self.screen.blit(DIGITOS[-1], posicao)
+            self.screen.blit(DIGITOS[9], (posicao[0] + ESCALA_MEDIA[0], posicao[1]))
+            self.screen.blit(DIGITOS[9], (posicao[0] + ESCALA_MEDIA[0] * 2, posicao[1]))
 
     @staticmethod
     def pega_posicao(linha, coluna):
@@ -311,8 +394,13 @@ class Cenario:
                 self.screen.blit(self.busca_elemento(i, j), self.pega_posicao(i, j))
 
     def botao_apertado(self):
-        x_pos, _ = pygame.mouse.get_pos()
-        if (self.largura_tela // 2) - (ESCALA_MAIOR[0] // 2) <= x_pos <= (self.largura_tela // 2) + (ESCALA_MAIOR[0] // 2):
+        lat_esq, superior = self.posicao_botao()
+        lat_dir = lat_esq + ESCALA_MAIOR[0]
+        inferior = superior + ESCALA_MAIOR[1]
+
+        x_pos, y_pos = pygame.mouse.get_pos()
+
+        if lat_esq <= x_pos <= lat_dir and superior <= y_pos <= inferior:
             return True
         return False
 
@@ -330,33 +418,74 @@ class Cenario:
         linha = (linha - MARGEM_SUPERIOR) // ESCALA_MENOR[0]
         return linha, coluna
 
+    def perdeu(self):
+        if self.explosao:
+            self.pintar_game_over()
+            return True
+        return False
+
+    def venceu(self):
+        vitoria = self.campo_minado_.qntd_posicoes_disponiveis() == self.campo_minado_.quantidade_bombas
+        if vitoria:
+            self.pintar_vitoria()
+        return vitoria
+
+    def pintar_texto_centro(self, texto):
+        texto_img = fonte.render(texto, True, YELLOW)
+        texto_x = (self.screen.get_width() - texto_img.get_width()) // 2
+        texto_y = (self.screen.get_height() - texto_img.get_height()) // 2
+        self.screen.blit(texto_img, (texto_x, texto_y))
+
+    def pintar_vitoria(self):
+        self.pintar_texto_centro('V I T O R I A ! ! !')
+
+    def pintar_game_over(self):
+        self.pintar_texto_centro('G A M E R  O V E R')
+
     def processar_eventos(self, eventos):
         for e in eventos:
             if e.type == pygame.QUIT:
                 exit()
+
             elif e.type == pygame.MOUSEBUTTONDOWN:
                 line, column = self.busca_linha_e_coluna()
+
                 if e.button == ESQUERDO:
-                    if line >= 0:
-                        self.campo_minado_.escolha(line, column)
+                    if line >= 0 and not self.explosao and not self.venceu():
+                        self.explosao = self.campo_minado_.escolha(line, column)
+                        self.inicia_tempo()
                         self.pinta_campo()
+
+                        if self.explosao:
+                            self.start = False
+                            self.screen.blit(BOTAO_DERROTA, self.posicao_botao())
+
+                        elif self.venceu():
+                            self.start = False
+                            self.screen.blit(BOTAO_VITORIA, self.posicao_botao())
+
                     elif self.botao_apertado():
                         self.screen.blit(BOTAO_PRESSIONADO, self.posicao_botao())
+                        self.inicio = time.time()
                         self.soltou = True
 
                 elif e.button == DIREITO:
-                    if line >= 0:
+                    if line >= 0 and not self.explosao and not self.venceu():
                         self.campo_minado_.sinalizacao(line, column)
                         self.pinta_campo()
+
             elif e.type == pygame.MOUSEBUTTONUP and e.button == ESQUERDO and self.soltou:
                 self.screen.blit(BOTAO_DEFAULT, self.posicao_botao())
                 self.screen = self.cria_tela()
-                self.pinta_campo_coberto()
+                self.pinta_tela()
                 self.pinta_botao()
-                self.campo_minado_ = CampoMinado(15, 15, 0.1)
+                self.campo_minado_ = CampoMinado(self.linhas, self.colunas, self.campo_minado_.dificuldade)
+                self.start = False
                 self.soltou = False
+                self.explosao = False
+
             elif e.type == pygame.KEYDOWN and e.key == pygame.K_p:
-                print(self.campo_minado_.campo)
+                self.campo_minado_.mostra_campo()
 
     def busca_elemento(self, linha, coluna):
         match self.campo_minado_.campo[linha, coluna]:
@@ -364,10 +493,14 @@ class Cenario:
                 return CAMPO_OCULTO
             case self.campo_minado_.bomba:
                 return BOMBA
+            case self.campo_minado_.bomba_explosao:
+                return BOMBA_EXPLOSAO
             case self.campo_minado_.marcacao:
                 return BANDEIRA
             case self.campo_minado_.duvida:
                 return DUVIDA
+            case self.campo_minado_.marcacao_errada:
+                return BOMBA_ERRADA
 
         match int(self.campo_minado_.campo[linha, coluna]):
             case 0:

@@ -2,8 +2,7 @@ import classes  # importada apenas para definir o tipo de dado esperado pelas fu
 
 
 def escolha_config():
-    """responsavel por retornar as configuracoes (quantidade de linhas e colunas e dificulade) do novo jogo do usuario
-    None -> tuple(int, int, float)"""
+    """responsavel por retornar as configuracoes (quantidade de linhas e colunas e dificulade) do novo jogo do usuario"""
     lines = trata_escolha('quantidade de linhas')
     columns = trata_escolha('quantidade de colunas')
     difficulty = trata_escolha('dificuldade (0.1 à 0.9)', _int=False)
@@ -11,8 +10,7 @@ def escolha_config():
 
 
 def trata_escolha(mensagem: str, maximo: int | None = None, _int: bool = True):
-    """responsavel pelo tratamento das entradas de dados do usuario antes, durante e apos a partida
-    str, int | None, bool -> int | float"""
+    """responsavel pelo tratamento das entradas de dados do usuario antes, durante e apos a partida"""
     while True:
         choice = input(f'Escolha a {mensagem}: ')
         if _int:  # caso _int seja True, a variavel choice só pode receber dados do tipo int
@@ -39,8 +37,7 @@ def trata_escolha(mensagem: str, maximo: int | None = None, _int: bool = True):
 
 
 def reinicio(mensagem: str):
-    """chamada ao final de cada partida para perguntar se o jogador que iniciar um novo jogo ou sair do programa
-    str -> bool"""
+    """chamada ao final de cada partida para perguntar se o jogador que iniciar um novo jogo ou sair do programa"""
     print(f'\nVocê {mensagem}')
 
     while True:
@@ -57,8 +54,7 @@ def reinicio(mensagem: str):
 
 
 def escolha_posicao(lines: int, columns: int, campo: classes.CampoMinado):
-    """funcao responsavel por retorna linha e coluna escolhida pelo usuario
-    int, int, CampoMinado"""
+    """funcao responsavel por retorna linha e coluna escolhida pelo usuario"""
     while True:
         line = trata_escolha('linha', maximo=lines)
         column = trata_escolha('coluna', maximo=columns)
@@ -67,8 +63,7 @@ def escolha_posicao(lines: int, columns: int, campo: classes.CampoMinado):
 
 
 def posicao_livre(line: int, column: int, campo: classes.CampoMinado):
-    """verifica se a posicao desejada do jogador esta livre para ser escolhida
-    int, int, CampoMinado -> bool"""
+    """verifica se a posicao desejada do jogador esta livre para ser escolhida"""
     if campo.campo[line, column] == campo.elemento:
         return True
     else:
@@ -76,8 +71,7 @@ def posicao_livre(line: int, column: int, campo: classes.CampoMinado):
 
 
 def erros(erro: int, maximo: int | None = None, posicao: list | None = None):
-    """funcao responsavel por mostrar mensagens de erro ao jogador
-    int, int | None, list -> None """
+    """funcao responsavel por mostrar mensagens de erro ao jogador"""
     match erro:
         case 1:
             print(f'Fora do Range! Escolha um número entre 0 e {maximo - 1}.')

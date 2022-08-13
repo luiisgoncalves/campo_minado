@@ -28,7 +28,7 @@ def main():
 
 def teste():
 
-    cenario = Cenario(15, 15, 0.1)
+    cenario = Cenario(15, 15, 0.05)
     jogo = True
     while jogo:
         partida = True
@@ -36,15 +36,13 @@ def teste():
         while partida:
             cenario.processar_eventos(pygame.event.get())
             pygame.display.update()
+            cenario.pinta_qntd_bomba()
+            cenario.contagem_tempo()
+            perdeu = cenario.perdeu()
+            venceu = cenario.venceu()
 
-            # if explosao:
-            #     partida = False
-            #     jogo = reinicio('perdeu! :(')
-
-            if cenario.campo_minado_.qntd_posicoes_disponiveis() == cenario.campo_minado_.quantidade_bombas:
+            if venceu or perdeu:
                 partida = False
-                # print('venceu')
-                # jogo = reinicio('ganhou!!!')
 
 
 if __name__ == '__main__':
