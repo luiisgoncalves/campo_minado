@@ -1,5 +1,6 @@
 # created by virtualenv automatically
 venv
+log.csv
 .ipynb_checkpoints
 .idea
 testes.ipynb

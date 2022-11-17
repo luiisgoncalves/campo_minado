@@ -1,4 +1,4 @@
-import classes  # importada apenas para definir o tipo de dado esperado pelas funcoes: escolha_posicao e posicao_livre
+from CampoMinado import CampoMinado  # importada apenas para definir o tipo de dado esperado pelas funcoes: escolha_posicao e posicao_livre
 
 
 def escolha_config() -> tuple[int, int, float]:
@@ -53,7 +53,7 @@ def reinicio(mensagem: str) -> bool | None:
             print('\nComando Inválido!\nDigite apenas "s" para Sim ou "n" para Não')
 
 
-def escolha_posicao(lines: int, columns: int, campo: classes.CampoMinado) -> tuple[int, int]:
+def escolha_posicao(lines: int, columns: int, campo: CampoMinado) -> tuple[int, int]:
     """funcao responsavel por retorna linha e coluna escolhida pelo usuario"""
     while True:
         line = trata_escolha('linha', maximo=lines)
@@ -62,7 +62,7 @@ def escolha_posicao(lines: int, columns: int, campo: classes.CampoMinado) -> tup
             return line, column
 
 
-def posicao_livre(line: int, column: int, campo: classes.CampoMinado) -> bool | None:
+def posicao_livre(line: int, column: int, campo: CampoMinado) -> bool | None:
     """verifica se a posicao desejada do jogador esta livre para ser escolhida"""
     if campo.campo[line, column] == campo.elemento:
         return True

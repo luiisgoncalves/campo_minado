@@ -1,6 +1,6 @@
-from classes import CampoMinado, Cenario
 import pygame
 from functions import *
+from Cenario import Cenario
 
 
 def jogo_no_terminal():
@@ -21,14 +21,14 @@ def jogo_no_terminal():
                 partida = False
                 jogo = reinicio('perdeu! :(')
 
-            elif campo.qntd_posicoes_disponiveis() == campo.quantidade_bombas:
+            elif campo.qtd_posicoes_disponiveis() == campo.qtd_bombas:
                 partida = False
                 jogo = reinicio('ganhou!!!')
 
 
 def main():
     # enquanto nao crio um menu, unico modo de alterar as configuracoes eh diretamente pela linha de codigo abaixo
-    cenario = Cenario(20, 20, 0.1)
+    cenario = Cenario(10, 10, 0.05)
 
     while True:
         cenario.processar_eventos(pygame.event.get())
