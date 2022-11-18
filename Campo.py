@@ -6,11 +6,13 @@ class Campo:
     def __init__(self, linhas: int, colunas: int, elemento: str = '·') -> None:
         """metodo de inicializacao da classe Campo.
         cria a quantidade de linhas, colunas os elementos neutros (ja com valor default) e o ndarray que representa a matriz do campo vazio"""
-        self.log = Log()  # LOG
         self.linhas = linhas
         self.colunas = colunas
         self._elemento = elemento
         self.campo = np.full((self.linhas, self.colunas), self._elemento)
+        self.log = Log()                 # LOG
+        self.log.log[12] = self.linhas   # LOG
+        self.log.log[13] = self.colunas  # LOG
 
     def mostra_campo(self, campo_minado: list | np.ndarray | None = None, espacamento: str = '   ') -> None:
         """metodo responsavel por mostrar o campo no estado atual"""

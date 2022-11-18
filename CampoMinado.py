@@ -31,6 +31,7 @@ class CampoMinado(Campo):
         self.bombas = []
         self.cria_bombas()
         self.conta_bombas()
+        self.log.log[14] = self._dificuldade  # LOG
 
     def cria_bombas(self) -> None:
         """metodo responsavel pela criacao das bombas de forma aleatoria"""
@@ -163,10 +164,11 @@ class CampoMinado(Campo):
                     self.campo[i, j] = self._bomba
                 elif self.campo[i, j] == self.marcacao and self.campo_minado[i, j] != self._bomba:
                     self.campo[i, j] = self._marcacao_errada
-                    self.log.log[4] -= 1  # LOG
-                    self.log.log[5] += 1  # LOG
-        self.log.log[9] = 1  # LOG
-        self.log.save()      # LOG
+                    self.log.log[4] -= 1             # LOG
+                    self.log.log[5] += 1             # LOG
+        self.log.log[3] = np.sum(self.log.log[4:6])  # LOG
+        self.log.log[9] = 1                          # LOG
+        self.log.save()                              # LOG
 
     def sem_bomba(self, linha: int, coluna: int) -> np.ndarray:
         """recebe a linha e coluna correspondentes de um elemento do campo minado e retorna uma lista com todos os elementos das redondezas que nao contem bombas"""
@@ -214,8 +216,10 @@ class CampoMinado(Campo):
             self.campo[linha, coluna] = self._duvida
             self._qntd_marcacoes -= 1
             self.log.log[4] -= 1  # LOG
+            self.log.log[6] += 1  # LOG
         elif self.campo[linha, coluna] == self._duvida:
             self.campo[linha, coluna] = self.elemento
+            self.log.log[6] -= 1  # LOG
 
     @staticmethod
     def contido(elemento: np.ndarray, array: np.ndarray) -> bool:
