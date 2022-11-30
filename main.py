@@ -1,14 +1,17 @@
 import pygame
 from Cenario import Cenario
 from Game import Game
+from random import seed
+
+seed(47)
 
 
 def jogo_no_terminal():
     jogo = True
 
     while jogo:
-        game = Game(terminal=True)
-        jogo = game.game()
+        jogo = Game()
+        jogo.game()
 
 
 def main():

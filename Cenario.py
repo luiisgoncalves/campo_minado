@@ -1,10 +1,8 @@
-from random import seed
 from CampoMinado import CampoMinado
+from Log import Log
 from constantes import *
 import pygame
 import time
-
-seed(47)
 
 pygame.init()
 fonte = pygame.font.SysFont('arial', 32, True, False)
@@ -16,9 +14,12 @@ class Cenario:  # classe responsavel pela criacao do cenario do jogo e das inter
     def __init__(self, linhas, colunas, dificuldade):
         self.linhas = linhas                                            # quantidade de linhas do campo minado
         self.colunas = colunas                                          # quantidade de colunas do campo minado
+        self.log = Log()
+        self.log.start()
         self.largura_tela = self.colunas * ESCALA_MENOR[0]              # largura da tela que será gerada
         self.altura_tela = self.linhas * ESCALA_MENOR[1]                # altura da tela que será gerada
-        self.campo_minado_ = CampoMinado(linhas, colunas, dificuldade)  # criacao de uma instacia da classe CampoMinado
+        self.campo_minado_ = CampoMinado(linhas, colunas, dificuldade, self.log)  # criacao de uma instacia da classe CampoMinado
+        self.campo_minado_.log.log[15] = 1
         self.screen = self.cria_tela()                                  # chama o metodo que criara a tela do jogo
         self.x_pos_qntd_bomba = 0  # posicao horizontal inicial onde será pintada na tela as imagens do digitos referentes à quantidade de bombas restantes para o jogador descobrir
         self.y_pos_qntd_bomba = 0  # posicao vertical inicial onde será pintada na tela as imagens do digitos referentes à quantidade de bombas restantes para o jogador descobrir
@@ -129,7 +130,9 @@ class Cenario:  # classe responsavel pela criacao do cenario do jogo e das inter
 
             elif e.type == pygame.MOUSEBUTTONUP and e.button == ESQUERDO and self.soltou:  # realizar esta acao apenas quando o jogador SOLTOU o botao de reinicio
                 # reinicializa quase todos os atributos para uma nova partida
-                self.campo_minado_ = CampoMinado(self.linhas, self.colunas, self.campo_minado_.dificuldade)
+                self.log = Log()
+                self.campo_minado_ = CampoMinado(self.linhas, self.colunas, self.campo_minado_.dificuldade, self.log)
+                self.campo_minado_.log.start()
                 self.screen.blit(BOTAO_DEFAULT, self.posicao_botao())
                 self.screen = self.cria_tela()
                 self.pinta_tela()

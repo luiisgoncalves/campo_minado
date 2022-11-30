@@ -2,6 +2,7 @@ import numpy as np
 from time import time
 from Campo import Campo
 from random import randint
+from Log import Log
 
 
 class CampoMinado(Campo):
@@ -9,6 +10,7 @@ class CampoMinado(Campo):
                  linhas: int,
                  colunas: int,
                  dificulade: float,
+                 log: Log,
                  elemento: str = '·',
                  bomba: str = 'X',
                  marcacao: str = 'ß',
@@ -16,7 +18,7 @@ class CampoMinado(Campo):
                  marcacao_errada: str = 'E',
                  bomba_explosao: str = 'Q'):
         """metodo de inicializacao da classe Campo Minado sendo herdada da classe Campo"""
-        super().__init__(linhas, colunas, elemento)  # chama o inicializador da superclasse Campo
+        super().__init__(linhas, colunas, log, elemento)  # chama o inicializador da superclasse Campo
         self._dificuldade = dificulade
         self._bomba = bomba
         self._marcacao = marcacao
@@ -106,7 +108,8 @@ class CampoMinado(Campo):
         dimensao = (-1, 0, 1)
         matriz_index = np.array([], dtype=int)
 
-        # outra forma de encontrar os elementos das redondezas (existe algum erro que eu nao quis procurar)
+        # outra forma de encontrar os elementos das redondezas
+        # (prefiro esta solucao, mas existe algum erro de codigo que eu nao quis procurar)
         ###########################################################################################################
         # line_inf = linha - 1 if linha - 1 >= 0 else 0
         # line_sup = linha + 2
@@ -167,8 +170,8 @@ class CampoMinado(Campo):
                     self.log.log[4] -= 1             # LOG
                     self.log.log[5] += 1             # LOG
         self.log.log[3] = np.sum(self.log.log[4:6])  # LOG
-        self.log.log[9] = 1                          # LOG
-        self.log.save()                              # LOG
+        # self.log.log[9] = 1                          # LOG
+        # self.log.save()
 
     def sem_bomba(self, linha: int, coluna: int) -> np.ndarray:
         """recebe a linha e coluna correspondentes de um elemento do campo minado e retorna uma lista com todos os elementos das redondezas que nao contem bombas"""
@@ -200,9 +203,8 @@ class CampoMinado(Campo):
                 if self.campo[linha, coluna] in elementos:
                     qntd_posicoes += 1
 
-        if qntd_posicoes == self.qtd_bombas:
-            self.log.log[8] = 1  # LOG
-            self.log.save()      # LOG
+        # if qntd_posicoes == self.qtd_bombas:
+        #     self.log.log[8] = 1  # LOG
 
         return qntd_posicoes
 

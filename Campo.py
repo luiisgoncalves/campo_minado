@@ -3,14 +3,14 @@ from Log import Log
 
 
 class Campo:
-    def __init__(self, linhas: int, colunas: int, elemento: str = '·') -> None:
+    def __init__(self, linhas: int, colunas: int, log: Log, elemento: str = '·') -> None:
         """metodo de inicializacao da classe Campo.
         cria a quantidade de linhas, colunas os elementos neutros (ja com valor default) e o ndarray que representa a matriz do campo vazio"""
         self.linhas = linhas
         self.colunas = colunas
         self._elemento = elemento
         self.campo = np.full((self.linhas, self.colunas), self._elemento)
-        self.log = Log()                 # LOG
+        self.log = log                   # LOG
         self.log.log[12] = self.linhas   # LOG
         self.log.log[13] = self.colunas  # LOG
 
