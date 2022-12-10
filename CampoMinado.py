@@ -109,7 +109,7 @@ class CampoMinado(Campo):
         matriz_index = np.array([], dtype=int)
 
         # outra forma de encontrar os elementos das redondezas
-        # (prefiro esta solucao, mas existe algum erro de codigo que eu nao quis procurar)
+        # (prefiro esta solucao, mas existe algum erro de codigo que eu nao quis procurar nesta versao)
         ###########################################################################################################
         # line_inf = linha - 1 if linha - 1 >= 0 else 0
         # line_sup = linha + 2
@@ -170,16 +170,14 @@ class CampoMinado(Campo):
                     self.log.log[4] -= 1             # LOG
                     self.log.log[5] += 1             # LOG
         self.log.log[3] = np.sum(self.log.log[4:6])  # LOG
-        # self.log.log[9] = 1                          # LOG
-        # self.log.save()
 
     def sem_bomba(self, linha: int, coluna: int) -> np.ndarray:
         """recebe a linha e coluna correspondentes de um elemento do campo minado e retorna uma lista com todos os elementos das redondezas que nao contem bombas"""
-        ja_vistos = np.array([], dtype=int)                               # array que contera todos os elementos ja vistos
+        ja_vistos = np.empty(0, dtype=int)                                # array que contera todos os elementos ja vistos
         nao_vistos = self.redondezas(linha, coluna)                       # array contendo todos os elementos ainda nao vistos
 
         while nao_vistos.any():                                           # se ainda existir algum elemento no array nao_vistos
-            for posicao in nao_vistos:                                    # olhar para cada elemento do array noa_vistos
+            for posicao in nao_vistos:                                    # olhar para cada elemento do array nao_vistos
                 incluido_ja_vistos = self.contido(posicao, ja_vistos)     # variavel verificadora se o elemento ja foi visto
 
                 elemento = self.campo_minado[posicao[0], posicao[1]]      # variavel contendo o elemento atual correspondente no campo minado
@@ -202,9 +200,6 @@ class CampoMinado(Campo):
             for coluna in range(self.colunas):
                 if self.campo[linha, coluna] in elementos:
                     qntd_posicoes += 1
-
-        # if qntd_posicoes == self.qtd_bombas:
-        #     self.log.log[8] = 1  # LOG
 
         return qntd_posicoes
 

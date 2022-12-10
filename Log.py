@@ -27,10 +27,12 @@ class Log:
         self.generate_header()
         self.beginning = 0
 
-    def start(self):
+    def start(self) -> None:
+        """marca o horario que o jogo iniciou"""
         self.beginning = time()
 
-    def save(self, new=False):
+    def save(self, new=False) -> None:
+        """salva a partida atual no arquivo de log ja existente ou cria um novo"""
         if new:
             with open(self.file_name, mode='w') as file:
                 file.write(self.header + '\n')
@@ -42,6 +44,7 @@ class Log:
                     file.write(content + '\n')
 
     def generate_header(self):
+        """cria o cabecalho do arquivo de log"""
         try:
             with open(self.file_name):
                 pass

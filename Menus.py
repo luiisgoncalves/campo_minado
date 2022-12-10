@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-import pandas as pd
 
+from Statistics import Statistics
 from Log import Log
 from time import time
 from CampoMinado import CampoMinado
@@ -20,10 +20,6 @@ class Menu(ABC):
         pass
 
     @abstractmethod
-    def settings(self):
-        pass
-
-    @abstractmethod
     def restart(self):
         pass
 
@@ -40,60 +36,45 @@ class MenuTerminal(Menu):
         self._exit = False
         self.pause_time = 0
         self.campo = campo
-        self.player = ''
+        self._statistics = Statistics()
 
-    def activate(self):
+    def activate(self) -> bool | None:
+        """responsavel por ativar o menu e tratar as opcoes escolhidas pelo jogador"""
         self._ative = True
         self.pause_time = time()
         while self._ative:
-            print('\n|------- MENU -------|')
-            self.print_opcoes(['| [1] salvar         |',
-                               '| [2] carregar jogo  |',
-                               '| [3] estatisticas   |',
-                               '| [4] reiniciar      |',
-                               '| [5] voltar ao jogo |',
-                               '| [0] sair           |',
-                               '|--------------------|'])
-            choice = input('escolha sua opcao: ')
-            try:
-                match int(choice):
-                    case 1:
-                        self.save()
-                    case 2:
-                        pass
-                    case 3:
-                        pass
-                    case 4:
-                        if self.campo is not None:
-                            return self.restart()
-
-                        else:
-                            self.erros(7)
-                    case 5:
-                        self._ative = False
-                    case 0:
-                        self._ative = False
-                        self._exit = True
-                    case _:
-                        raise ValueError
-            except ValueError:
-                self.erros(6)
+            choice = self.print_menus(1)
+            match int(choice):
+                case 1:
+                    if self.campo is not None:  # so permite reinicio da partida se o campo do jogo tiver sido criado
+                        return self.restart()
+                    else:
+                        self._erros(6)
+                case 2:
+                    self.statistics()
+                case 3:
+                    self._ative = False
+                case 0:
+                    self._ative = False
+                    self._exit = True
 
             if not self._ative:
-                self._log.beginning += time() - self.pause_time if self._log.beginning != 0 else 0
+                self._log.beginning += time() - self.pause_time if self._log.beginning != 0 else 0  # subtrai o tempo que o jogo ficou pausado
                 if self._exit:
                     self.exit()
 
-    def save(self):
-        if self.campo is not None:
+    def save(self) -> None:
+        """salva a partida no arquivo de log"""
+        if self.campo is not None:  # novamente verifica e so permite no caso em que o campo minado tiver sido criado
             game = ''
             for i in range(len(self.campo.campo.flatten())):
                 game += str(self.campo.campo.flatten()[i])
             print(game)
         else:
-            self.erros(5)
+            self._erros(4)
 
-    def restart(self):
+    def restart(self) -> bool | None:
+        """reinicia a partida"""
         while True:
             choice = input('deseja salvar o jogo atual?\n'
                            '[S] Sim\n'
@@ -102,49 +83,100 @@ class MenuTerminal(Menu):
             if choice.upper() == 'S':
                 self.save()
             elif choice.upper() != 'N':
-                self.erros(4)
+                self._erros(3)
                 continue
             return True
 
-    @staticmethod
-    def print_opcoes(opcoes):
-        for opcao in opcoes:
+    def statistics(self) -> None:
+        """chamada quando o jogador deseja ver alguma estatistica do jogo"""
+        while True:
+            try:
+                choice = self.print_menus(2)
+                match choice:
+                    case 1:
+                        self._statistics.victory()
+                    case 2:
+                        self._statistics.loss()
+                    case 3:
+                        self._statistics.razao()
+                    case 4:
+                        self._statistics.time_sum()
+                    case 0:
+                        break
+                    case _:
+                        raise ValueError
+            except FileNotFoundError:
+                self._erros(2)
+
+    def exit(self) -> None:
+        """responsavel por encerrar a partida"""
+        while True:
+            try:
+                choice = input('Certeza que deseja sair?\n'
+                               '[S] Sim\n'
+                               '[N] Não\n'
+                               'R: ')
+                if choice.upper() == 'S':
+                    self._log.log[11] = 1
+                    self._log.save()
+                    exit()
+                elif choice.upper() == 'N':
+                    break
+                else:
+                    raise ValueError
+            except ValueError:
+                self._erros(5)
+
+    def print_menus(self, type_menu: int) -> int:
+        """mostra e pergunta ao usuario os menus e suas opcoes"""
+        menu = []
+        match type_menu:
+            case 1:
+                menu.append('|------- MENU -------|')
+                menu.append('| [1] reiniciar      |')
+                menu.append('| [2] estatisticas   |')
+                menu.append('| [3] voltar ao jogo |')
+                menu.append('| [0] sair           |')
+                menu.append('|--------------------|')
+            case 2:
+                menu.append('|---------------- ESTATISTICAS ---------------|')
+                menu.append('| [1] ranking de players que mais ganharam    |')
+                menu.append('| [2] ranking de players que mais perderam    |')
+                menu.append('| [3] porcentagem de vitorias de cada jogador |')
+                menu.append('| [4] media de tempo de jogo                  |')
+                menu.append('| [0] voltar                                  |')
+                menu.append('|---------------------------------------------|')
+        print()
+        for opcao in menu:
             print(opcao)
 
-    def statistics(self):
-        try:
-            df = pd.read_csv('log.csv', index_col=0)
-            df.index = pd.to_datetime(df.index)
-            print(df)
-        except FileNotFoundError:
-            self.erros(2)
-
-    def settings(self):
-        pass
-
-    def exit(self):
-        # self._log.log[15] = 1  # implementacao futura
-        self._log.log[11] = 1
-        self._log.save()
-        exit()
+        while True:
+            try:
+                choice = int(input('escolha sua opcao: '))
+                if 0 <= choice <= len(menu) - 3:
+                    return choice
+                else:
+                    raise ValueError
+            except ValueError:
+                self._erros(5)
+                for opcao in menu:
+                    print(opcao)
 
     @classmethod
-    def erros(cls, erro: int) -> None:
+    def _erros(cls, erro: int) -> None:
         """funcao responsavel por mostrar mensagens de erro ao jogador"""
         match erro:
             case 1:
-                print(f'Comando inválido!')
+                print('Comando inválido!')
             case 2:
                 print('Arquivo de log não encontrado, verifique se o arquivo se encontra no mesmo diretorio do jogo.')
             case 3:
-                print('Entrada Inválida!\nEntre apenas com um número do tipo float.')
-            case 4:
                 print('\nEntrada Inválida!\n')
-            case 5:
+            case 4:
                 print('\nImpossível salvar! Campo não criado\n')
+            case 5:
+                print('\nEntrada inválida! Entre apenas com o número da opção desejada!\n')
             case 6:
-                print('\nEntrada inválida! Entre apenas com o número da opção desejada!')
-            case 7:
                 print('\nReinício disponível apenas após criar uma partida!')
 
 
@@ -157,9 +189,6 @@ class MenuGUI(Menu):
         pass
 
     def statistics(self):
-        pass
-
-    def settings(self):
         pass
 
     def exit(self):

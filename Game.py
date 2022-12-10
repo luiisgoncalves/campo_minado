@@ -8,6 +8,7 @@ class Game:
         self.log = Log()
         self.terminal = terminal
         self.menu = MenuTerminal(self.log) if terminal else MenuGUI(self.log)
+        self.log.log[7] = input('Quem irá jogar: ').upper()
         self.lines = self.trata_escolha('quantidade de linhas')
         self.columns = self.trata_escolha('quantidade de colunas')
         self.difficulty = self.trata_escolha('dificuldade (0.1 à 0.9)', _int=False)
@@ -18,6 +19,7 @@ class Game:
         self.log.start()
 
     def game(self):
+        """doc"""
         while self.partida:
             try:
                 line, column = self.escolha_posicao()
@@ -36,7 +38,12 @@ class Game:
             except TypeError:
                 break
 
+    def player(self):
+        """doc"""
+        self.log.log[7] = input('Quem está jogando?\nR: ')
+
     def save(self):
+        """doc"""
         self.campo.log.save()
 
     def escolha_posicao(self) -> tuple[int, int]:
@@ -58,7 +65,7 @@ class Game:
         if self.campo.campo[line, column] == self.campo.elemento:
             return True
         else:
-            self.erros(5, posicao=[line, column])
+            self._erros(5, posicao=[line, column])
 
     @classmethod
     def reinicio(cls, mensagem: str) -> bool | None:
@@ -66,7 +73,7 @@ class Game:
         print(f'\nVocê {mensagem}')
 
         while True:
-            escolha = input('\nDeseja iniciar uma nova partida?\nSim [s]\nNão [n]\nR: ')
+            escolha = input('\nDeseja iniciar uma nova partida?\n[S] Sim\n[N] Não\nR: ')
 
             if escolha.upper() == 'S':
                 return True
@@ -99,28 +106,28 @@ class Game:
                         if 0 <= choice < self.lines:  # ...significa que o jogador só pode escolher valores dentro de um intervalo
                             return choice
                         else:
-                            self.erros(1, self.lines)
+                            self._erros(1, self.lines)
 
                     elif column:
                         if 0 <= choice < self.columns:  # ...significa que o jogador só pode escolher valores dentro de um intervalo
                             return choice
                         else:
-                            self.erros(1, self.columns)
+                            self._erros(1, self.columns)
 
                     else:
                         return choice
 
                 except ValueError:  # se subir a exceção do tipo ValueError quer dizer que nao eh do tipo int e chama a funcao de erros
-                    self.erros(2)
+                    self._erros(2)
             else:  # caso contrario, a variavel choice só pode receber dados do tipo float
                 try:
                     choice = float(choice)  # verifica se a variavel choice realmente eh do tipo int
                     if 0.1 <= choice <= 0.9:  # range de dificuldade mínima e máxima que o jogador pode escolher
                         return choice
                     else:
-                        self.erros(4)  # se a escolha de dificuldade estiver fora do range definido, chamar a funcao de erros
+                        self._erros(4)  # se a escolha de dificuldade estiver fora do range definido, chamar a funcao de erros
                 except ValueError:  # se subir a exceção do tipo ValueError quer dizer que nao eh do tipo int e chama a funcao de erros
-                    self.erros(3)
+                    self._erros(3)
 
     def pause(self):
         """doc"""
@@ -132,7 +139,7 @@ class Game:
         return True
 
     @classmethod
-    def erros(cls, erro: int, maximo: int | None = None, posicao: list | None = None) -> None:
+    def _erros(cls, erro: int, maximo: int | None = None, posicao: list | None = None) -> None:
         """funcao responsavel por mostrar mensagens de erro ao jogador"""
         match erro:
             case 1:
